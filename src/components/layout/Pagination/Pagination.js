@@ -44,6 +44,8 @@ function Pagination({ data, total }) {
     }
     setIterator(arr)
 
+    window.scrollTo(0,0)
+
 
   }, [activePage, pageNumber, wholeData, limit])
 
