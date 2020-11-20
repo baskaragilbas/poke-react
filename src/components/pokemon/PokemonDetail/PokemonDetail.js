@@ -44,7 +44,7 @@ function PokemonDetail() {
       data.species.detail = await speciesDetail.json()
 
       //getting the lastest english description from a bunch of flavor text
-      data.species.detail.flavor_text_entries.some(flavor => {
+      data.species.detail.flavor_text_entries.some((flavor) => {
         if (flavor.language.name === 'en') {
           data.species.description = flavor.flavor_text.replace(/\s\\.|\\.\s/g, ' ').replace(/\\./g, 's');
         }
@@ -270,9 +270,7 @@ function PokemonDetail() {
                 })
 
                 let uniqueList = [...new Set(gameList)]
-                if (move.move.name === 'vine-whip') {
-                  console.log(uniqueList)
-                }
+        
                 return (
 
                   <tr>
