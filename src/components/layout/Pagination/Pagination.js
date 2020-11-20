@@ -46,7 +46,6 @@ function Pagination({ data, total }) {
 
     window.scrollTo(0,0)
 
-
   }, [activePage, pageNumber, wholeData, limit])
 
   function setPagination(activePage, limit, total) {
