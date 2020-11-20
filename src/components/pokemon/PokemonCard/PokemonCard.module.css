@@ -1,8 +1,16 @@
-.PokemonCard {
+.PokemonCard {}
 
-}
-.NoStyle{
-    color: black; 
+.NoStyle {
+    color: black;
     text-decoration: none;
     outline: none;
+
+}
+
+.NoLink {
+    color: black;
+    text-decoration: none;
+    outline: none;
+    pointer-events: none;
+
 }
