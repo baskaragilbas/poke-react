@@ -1,17 +1,13 @@
 import React from 'react';
-import styles from './PokemonList.module.css';
+// import styles from './PokemonList.module.css';
 import PokemonCard from '../PokemonCard/PokemonCard'
 
 function PokemonList({ data }) {
-  let items = data
-  React.useEffect(() => {
-    items = data
-  }, [data])
-  if (items) {
+  if (data) {
     return (
       <div class="card-group">
 
-        {items.map(item => {
+        {data.map(item => {
           const pokeID = item.url.split('/').slice(-2).reverse().pop()
           const url = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" + pokeID + ".png"
 

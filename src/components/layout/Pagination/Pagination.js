@@ -1,7 +1,7 @@
 import React from 'react';
 import PokemonList from '../../pokemon/PokemonList/PokemonList';
 import SearchBar from '../SearchBar/SearchBar';
-import styles from './Pagination.module.css';
+// import styles from './Pagination.module.css';
 
 function Pagination({ data, total }) {
   const [limit, setLimit] = React.useState(20)
@@ -11,8 +11,18 @@ function Pagination({ data, total }) {
   const [wholeData, setWholeData] = React.useState(data)
   const [paginationData, setPaginationData] = React.useState(data.slice(0, limit))
 
+
+
   React.useEffect(() => {
-    setPagination(activePage, limit, total)
+
+    const startOffset = (activePage - 1) * limit
+    const endOffset = (activePage * limit)
+
+    if (endOffset > total) {
+      setPaginationData(wholeData.slice(total - endOffset))
+    } else {
+      setPaginationData(wholeData.slice(startOffset, endOffset))
+    }
 
     let arr = []
     if (pageNumber <= 5) {
@@ -43,21 +53,8 @@ function Pagination({ data, total }) {
       }
     }
     setIterator(arr)
-
-    window.scrollTo(0,0)
-
-  }, [activePage, pageNumber, wholeData, limit])
-
-  function setPagination(activePage, limit, total) {
-    const startOffset = (activePage - 1) * limit
-    const endOffset = (activePage * limit)
-
-    if (endOffset > total) {
-      setPaginationData(wholeData.slice(total - endOffset))
-    } else {
-      setPaginationData(wholeData.slice(startOffset, endOffset))
-    }
-  }
+    window.scrollTo(0, 0)
+  }, [activePage, pageNumber, wholeData, total, limit,])
 
   function searchFilter(string) {
     if (string.length > 0) {
@@ -84,7 +81,7 @@ function Pagination({ data, total }) {
           </li>
         }
         {iterator.map(i => {
-          return <li class={`page-item ${i === activePage ? "active" : ""}`}><a class="page-link" onClick={() => { if (!isNaN(i)) { return setActivePage(i) } }}>{i}</a></li>
+          return <li class={`page-item ${i === activePage ? "active" : ""}`}><span class="page-link" onClick={() => { if (!isNaN(i)) { return setActivePage(i) } }}>{i}</span></li>
         })}
         {activePage !== pageNumber &&
           <li class="page-item">

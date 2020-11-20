@@ -1,12 +1,10 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import styles from './PokemonDetail.module.css';
 import { useParams } from 'react-router-dom';
 import PokemonCard from '../PokemonCard/PokemonCard';
 
 function PokemonDetail() {
   let [pokemon, setPokemon] = React.useState(null)
-  let [gameList, setGameList] = React.useState(null)
   const { id } = useParams();
   const baseUrl = 'https://pokeapi.co/api/v2/pokemon/'
 
