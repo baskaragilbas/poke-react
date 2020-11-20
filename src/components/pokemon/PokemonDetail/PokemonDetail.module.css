@@ -1,1 +1,102 @@
-.PokemonDetail {}
+.pokemonType {
+    color: white;
+}
+
+.bug {
+    composes: pokemonType;
+    background-color: #A6B91A;
+}
+
+.dark {
+    composes: pokemonType;
+    background-color: #705746;
+}
+
+.dragon {
+    composes: pokemonType;
+    background-color: #6F35FC;
+}
+
+.electric {
+    composes: pokemonType;
+    background-color: #F7D02C;
+}
+
+.fairy {
+    composes: pokemonType;
+    background-color: #D685AD;
+}
+
+.fighting {
+    composes: pokemonType;
+    background-color: #C22E28;
+}
+
+.fire {
+    composes: pokemonType;
+    background-color: #EE8130;
+}
+
+.flying {
+    composes: pokemonType;
+    background-color: #A98FF3;
+}
+
+.ghost {
+    composes: pokemonType;
+    background-color: #735797;
+}
+
+.grass {
+    composes: pokemonType;
+    background-color: #7AC74C;
+}
+
+.ground {
+    composes: pokemonType;
+    background-color: #E2BF65;
+}
+
+.ice {
+    composes: pokemonType;
+    background-color: #96D9D6;
+}
+
+.normal {
+    composes: pokemonType;
+    background-color: #A8A77A;
+}
+
+.poison {
+    composes: pokemonType;
+    background-color: #A33EA1;
+}
+
+.psychic {
+    composes: pokemonType;
+    background-color: #F95587;
+}
+
+.rock {
+    composes: pokemonType;
+    background-color: #B6A136;
+}
+
+.steel {
+    composes: pokemonType;
+    background-color: #B7B7CE;
+}
+
+.water {
+    composes: pokemonType;
+    background-color: #6390F0;
+}
+
+.width {
+    width: auto !important;
+}
+
+.tableFit {
+    width: 1%;
+    table-layout: fixeds !important;
+}
