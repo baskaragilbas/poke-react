@@ -9,9 +9,16 @@ function Pagination({ data, total }) {
   const [activePage, setActivePage] = React.useState(1)
   const [iterator, setIterator] = React.useState([])
   const [wholeData, setWholeData] = React.useState(data)
-  const [paginationData, setPaginationData] = React.useState(data.slice(0, limit))
+  const [paginationData, setPaginationData] = React.useState([])
+  console.log(iterator)
 
+  React.useEffect(() =>{
+    setPageNumber(Math.ceil(total / limit))
+  },[total,limit])
 
+  React.useEffect(()=>{
+    setWholeData(data)
+  },[data])
 
   React.useEffect(() => {
 
@@ -54,7 +61,7 @@ function Pagination({ data, total }) {
     }
     setIterator(arr)
     window.scrollTo(0, 0)
-  }, [activePage, pageNumber, wholeData, total, limit,])
+  }, [activePage, pageNumber, wholeData, total, limit,data])
 
   function searchFilter(string) {
     if (string.length > 0) {

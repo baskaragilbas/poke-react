@@ -2,13 +2,25 @@ import React from 'react';
 import styles from './PokemonDetail.module.css';
 import { useParams } from 'react-router-dom';
 import PokemonCard from '../PokemonCard/PokemonCard';
+import firebase from '../../../Firestore'
 
 function PokemonDetail() {
-  let [pokemon, setPokemon] = React.useState(null)
+  const database = firebase.database()
+  const [pokemon, setPokemon] = React.useState(null)
+  const [isOwned, setIsOwned] = React.useState(null)
   const { id } = useParams();
   const baseUrl = 'https://pokeapi.co/api/v2/pokemon/'
 
-  React.useState(() => {
+  database.ref('pokemon_collections').once('value', function(snapshot){
+    if(snapshot.hasChild(id)){
+      setIsOwned(true)
+    }else{
+      setIsOwned(false)
+    }
+
+  })
+
+  React.useEffect(() => {
     const url = baseUrl + id
 
     const fetchData = async (url) => {
@@ -67,6 +79,29 @@ function PokemonDetail() {
     return words.join(" ")
   }
 
+  function objectSum(obj) {
+    let sum = 0
+    for (let key in obj) {
+      sum += obj[key];
+    }
+    return sum
+  }
+
+  function catchPokemon(pokemon) {
+    if (!isOwned) {
+      database.ref('pokemon_collections').child(pokemon.id).set(pokemon)
+    }
+    setIsOwned(!isOwned)
+  }
+
+  function releasePokemon(id){
+    if (isOwned) {
+      database.ref('pokemon_collections').child(id).remove()
+    }
+    setIsOwned(!isOwned)
+  }
+
+
   if (!pokemon) {
     return (
       <div>Loading...</div>
@@ -82,21 +117,54 @@ function PokemonDetail() {
     'speed': pokemon.stats.filter(stat => stat.stat.name === "speed")[0].base_stat,
   }
 
-  function objectSum(obj) {
-    let sum = 0
-    for (let key in obj) {
-      sum += obj[key];
-    }
-    return sum
-  }
-
-
-
   return (
     <div class="card mt-4 mb-5">
       <div class="card-group mt-4">
         <div class="col-md-3">
           <PokemonCard pokeID={id} url={pokemon.sprites.front_default} name={toCapital(pokemon.name)} cardLink={false}></PokemonCard>
+          {
+            (isOwned === null ?
+              (
+                <div class="mt-2 mb-2 align-middle">
+                <button type="button" class='btn btn-block btn-success'>
+                <div class="spinner-border" role="status">
+              <span class="sr-only">Loading...</span>
+            </div>
+                </button>
+                <button type="button" class='mt-2 btn btn-block btn-danger'>
+                <div class="spinner-border" role="status">
+              <span class="sr-only">Loading...</span>
+            </div>
+                </button>
+                </div>
+              )
+              : (
+                <div class="mt-2 mb-2 align-middle">
+                <button
+                  type="button"
+                  class='btn btn-block btn-success'
+                  onClick={() => catchPokemon({
+                    id: id,
+                    url: baseUrl+id+'/',
+                    name: pokemon.name
+                  })}
+                  disabled={isOwned}
+                >
+                  {isOwned ? 'Already owned' : 'Catch?'}
+                </button>
+                <button
+                  type="button"
+                  class='mt-2  btn btn-block btn-danger'
+                  onClick={() => releasePokemon(id)}
+                  disabled={!isOwned}
+                >
+                  {isOwned ? 'Release?' : "You have to catch it first!"}
+                </button>
+                </div>
+              )
+
+            )
+          }
         </div>
         <div class="col-md-9 text-left table-responsive">
           <table class="table  " >
@@ -270,7 +338,7 @@ function PokemonDetail() {
                 })
 
                 let uniqueList = [...new Set(gameList)]
-        
+
                 return (
 
                   <tr>

@@ -5,10 +5,10 @@ import { HashRouter as Router, Route, Switch } from 'react-router-dom'
 import NavBar from './components/layout/NavBar/NavBar';
 import Pagination from './components/layout/Pagination/Pagination';
 import PokemonDetail from './components/pokemon/PokemonDetail/PokemonDetail';
+import PokemonBox from './components/pokemon/PokemonBox/PokemonBox';
 
 function App() {
-  const [responseData, setResponseData] = React.useState(null);
-
+  const [apiData, setApiData] = React.useState(null);
   const baseUrl = 'https://pokeapi.co/api/v2/'
 
   React.useEffect(() => {
@@ -28,13 +28,13 @@ function App() {
       });
 
       let data = await response.json()
-      setResponseData(data);
+      setApiData(data);
     };
 
     fetchData(url);
   }, [])
 
-  if (!responseData) {
+  if (!apiData ) {
     return (
       <div>
         <NavBar />
@@ -47,16 +47,17 @@ function App() {
       <Router>
         <div className="App">
           <NavBar />
-          <div class="container">
             <Switch>
               <Route exact path='/'>
-                <Pagination data={responseData.results} total={responseData.count} />
+                <Pagination data={apiData.results} total={apiData.count} />
               </Route>
               <Route path="/pokemon/:id" component={PokemonDetail} />
+              <Route path="/pokebox">
+              <PokemonBox/>
+              </Route>
+              
             </Switch>
           </div>
-
-        </div>
       </Router>
     );
   }

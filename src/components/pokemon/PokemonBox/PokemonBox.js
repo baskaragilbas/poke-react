@@ -1,15 +1,30 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import styles from './PokemonBox.module.css';
+//import styles from './PokemonBox.module.css';
+import firebase from '../../../Firestore'
+import Pagination from '../../layout/Pagination/Pagination';
 
-const PokemonBox = () => (
-  <div className={styles.PokemonBox} data-testid="PokemonBox">
-    PokemonBox Component
-  </div>
-);
 
-PokemonBox.propTypes = {};
 
-PokemonBox.defaultProps = {};
+function PokemonBox() {
+  const database = firebase.database()
+  const [persistData, setPersistData] = React.useState([]);
+
+  React.useEffect(() =>{
+    database.ref('pokemon_collections').once('value', function(snapshot){
+      let returnArr = []
+      snapshot.forEach(item =>{
+        returnArr.push(item.val())
+      })
+      setPersistData(returnArr)
+    })
+    
+  },[database])
+
+  return (
+    <div>
+    <Pagination data={persistData} total={persistData.length}/>
+    </div>
+  )
+};
 
 export default PokemonBox;
