@@ -1,28 +1,31 @@
 import React from 'react';
 import styles from './PokemonDetail.module.css';
-import { useParams } from 'react-router-dom';
+import { useParams, useHistory } from 'react-router-dom';
+import AppContext from '../../../AppContext'
 import PokemonCard from '../PokemonCard/PokemonCard';
 import firebase from '../../../Firestore'
+import Modal from '../../layout/Modal/Modal';
 
-function PokemonDetail() {
+function PokemonDetail({ isOwnedPokemonDetail }) {
   const database = firebase.database()
   const [pokemon, setPokemon] = React.useState(null)
-  const [isOwned, setIsOwned] = React.useState(null)
-  const { id } = useParams();
+  const [isShown, setIsShown] = React.useState(false)
+  const dataContext = React.useContext(AppContext)
+  let { id } = useParams();
+  const history = useHistory()
   const baseUrl = 'https://pokeapi.co/api/v2/pokemon/'
 
-  database.ref('pokemon_collections').once('value', function(snapshot){
-    if(snapshot.hasChild(id)){
-      setIsOwned(true)
-    }else{
-      setIsOwned(false)
-    }
-
-  })
+  let ownedPokemonDetail
+  if (isOwnedPokemonDetail) {
+    dataContext.persistData.map(item => {
+      if (item.id === id) {
+        ownedPokemonDetail = item
+      }
+    })
+  }
 
   React.useEffect(() => {
-    const url = baseUrl + id
-
+    const url = baseUrl + (ownedPokemonDetail ? ownedPokemonDetail.pokeId : id)
     const fetchData = async (url) => {
       //getting the pokemon data
       const pokemonDetail = await fetch(
@@ -67,7 +70,7 @@ function PokemonDetail() {
     };
 
     fetchData(url);
-  }, [])
+  }, [ownedPokemonDetail])
 
   function toCapital(text) {
     return text.charAt(0).toUpperCase() + text.slice(1)
@@ -88,18 +91,32 @@ function PokemonDetail() {
   }
 
   function catchPokemon(pokemon) {
-    if (!isOwned) {
-      database.ref('pokemon_collections').child(pokemon.id).set(pokemon)
+
+    if (dataContext.persistData.filter(item => item.name.toLowerCase() === pokemon.toLowerCase()).length > 0) {
+      console.log(dataContext.persistData.filter(item => item.name.toLowerCase() === pokemon.toLowerCase()),pokemon)
+      alert('Name already exist!')
+    } else {
+      const submit = database.ref('pokemon_collections').push()
+      let data = {
+        id: submit.key,
+        pokeId: id,
+        name: pokemon,
+        url: baseUrl + id + '/'
+      }
+      database.ref('pokemon_collections').child(data.id).set(data)
+      let update = dataContext.persistData.concat(data)
+      dataContext.setPersistData(update)
+      setIsShown(!isShown)
     }
-    setIsOwned(!isOwned)
   }
 
-  function releasePokemon(id){
-    if (isOwned) {
-      database.ref('pokemon_collections').child(id).remove()
-    }
-    setIsOwned(!isOwned)
+  function releasePokemon(id) {
+    database.ref('pokemon_collections').child(id).remove()
+    let newDataPersist = dataContext.persistData.filter(item => item.id !== id)
+    dataContext.setPersistData(newDataPersist)
+    history.push('/pokebox')
   }
+
 
 
   if (!pokemon) {
@@ -119,50 +136,36 @@ function PokemonDetail() {
 
   return (
     <div class="card mt-4 mb-5">
+      <Modal isShow={isShown} functionHandler={{ setIsShown: setIsShown, catchPokemon: catchPokemon }} type={(isOwnedPokemonDetail ? "release" : "catch")}></Modal>
       <div class="card-group mt-4">
         <div class="col-md-3">
-          <PokemonCard pokeID={id} url={pokemon.sprites.front_default} name={toCapital(pokemon.name)} cardLink={false}></PokemonCard>
+          <PokemonCard pokeID={(isOwnedPokemonDetail ? ownedPokemonDetail.pokeId : id)} url={pokemon.sprites.front_default} name={toCapital(isOwnedPokemonDetail ? ownedPokemonDetail.name : pokemon.name)} cardLink={false}></PokemonCard>
           {
-            (isOwned === null ?
-              (
-                <div class="mt-2 mb-2 align-middle">
-                <button type="button" class='btn btn-block btn-success'>
-                <div class="spinner-border" role="status">
-              <span class="sr-only">Loading...</span>
-            </div>
-                </button>
-                <button type="button" class='mt-2 btn btn-block btn-danger'>
-                <div class="spinner-border" role="status">
-              <span class="sr-only">Loading...</span>
-            </div>
-                </button>
-                </div>
-              )
-              : (
-                <div class="mt-2 mb-2 align-middle">
-                <button
-                  type="button"
-                  class='btn btn-block btn-success'
-                  onClick={() => catchPokemon({
-                    id: id,
-                    url: baseUrl+id+'/',
-                    name: pokemon.name
-                  })}
-                  disabled={isOwned}
-                >
-                  {isOwned ? 'Already owned' : 'Catch?'}
-                </button>
-                <button
-                  type="button"
-                  class='mt-2  btn btn-block btn-danger'
-                  onClick={() => releasePokemon(id)}
-                  disabled={!isOwned}
-                >
-                  {isOwned ? 'Release?' : "You have to catch it first!"}
-                </button>
-                </div>
-              )
-
+            (
+              <div class="mt-2 mb-2 align-middle">
+                {
+                  (!isOwnedPokemonDetail ? (
+                    <button
+                      type="button"
+                      class='btn btn-block btn-success'
+                      onClick={() => (Math.random() <= 0.5 ? alert('Failed, please try again') : setIsShown(true))}
+                    >
+                      Catch?
+                    </button>
+                  ) : '')
+                }
+                {
+                  (isOwnedPokemonDetail ? (
+                    <button
+                      type="button"
+                      class='mt-2  btn btn-block btn-danger'
+                      onClick={() => releasePokemon(id)}
+                    >
+                      Release?
+                    </button>
+                  ) : '')
+                }
+              </div>
             )
           }
         </div>

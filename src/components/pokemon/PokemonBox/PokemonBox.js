@@ -1,28 +1,15 @@
 import React from 'react';
 //import styles from './PokemonBox.module.css';
-import firebase from '../../../Firestore'
-import Pagination from '../../layout/Pagination/Pagination';
+import AppContext from '../../../AppContext'
+import PokemonList from '../PokemonList/PokemonList';
 
 
 
 function PokemonBox() {
-  const database = firebase.database()
-  const [persistData, setPersistData] = React.useState([]);
-
-  React.useEffect(() =>{
-    database.ref('pokemon_collections').once('value', function(snapshot){
-      let returnArr = []
-      snapshot.forEach(item =>{
-        returnArr.push(item.val())
-      })
-      setPersistData(returnArr)
-    })
-    
-  },[database])
-
+  const dataContext = React.useContext(AppContext)
   return (
     <div>
-    <Pagination data={persistData} total={persistData.length}/>
+      <PokemonList data={dataContext.persistData} isOwnedPokemon={true} />
     </div>
   )
 };

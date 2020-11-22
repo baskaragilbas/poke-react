@@ -1,14 +1,18 @@
 import React from 'react'
 import './App.css';
 import { HashRouter as Router, Route, Switch } from 'react-router-dom'
+import firebase from 'firebase'
 
+import AppContext from './AppContext'
 import NavBar from './components/layout/NavBar/NavBar';
-import Pagination from './components/layout/Pagination/Pagination';
 import PokemonDetail from './components/pokemon/PokemonDetail/PokemonDetail';
 import PokemonBox from './components/pokemon/PokemonBox/PokemonBox';
+import PokemonList from './components/pokemon/PokemonList/PokemonList';
 
 function App() {
   const [apiData, setApiData] = React.useState(null);
+  const [persistData, setPersistData] = React.useState([]);
+
   const baseUrl = 'https://pokeapi.co/api/v2/'
 
   React.useEffect(() => {
@@ -34,7 +38,20 @@ function App() {
     fetchData(url);
   }, [])
 
-  if (!apiData ) {
+  const database = firebase.database()
+
+  React.useEffect(() => {
+    database.ref('pokemon_collections').once('value', function (snapshot) {
+      let returnArr = []
+      snapshot.forEach(item => {
+        returnArr.push(item.val())
+      })
+      setPersistData(returnArr)
+    })
+
+  }, [database])
+
+  if (!apiData) {
     return (
       <div>
         <NavBar />
@@ -43,21 +60,33 @@ function App() {
 
     )
   } else {
+    const data = {
+      apiData: apiData,
+      persistData: persistData,
+      setPersistData: setPersistData
+    }
+
     return (
       <Router>
         <div className="App">
           <NavBar />
-            <Switch>
+          <Switch>
+            <AppContext.Provider value={data}>
               <Route exact path='/'>
-                <Pagination data={apiData.results} total={apiData.count} />
+                <PokemonList data={apiData.results} />
               </Route>
-              <Route path="/pokemon/:id" component={PokemonDetail} />
-              <Route path="/pokebox">
-              <PokemonBox/>
+              <Route exact path="/pokemon/:id" >
+                <PokemonDetail />
               </Route>
-              
-            </Switch>
-          </div>
+              <Route exact path="/pokebox/">
+                <PokemonBox />
+              </Route>
+              <Route exact path="/pokebox/:id">
+                <PokemonDetail isOwnedPokemonDetail={true} />
+              </Route>
+            </AppContext.Provider>
+          </Switch>
+        </div>
       </Router>
     );
   }
