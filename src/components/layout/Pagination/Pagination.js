@@ -1,35 +1,16 @@
 import React from 'react';
-import PokemonList from '../../pokemon/PokemonList/PokemonList';
-import SearchBar from '../SearchBar/SearchBar';
 // import styles from './Pagination.module.css';
 
-function Pagination({ data, total }) {
-  const [limit, setLimit] = React.useState(20)
+function Pagination({ limit, total, functionHandler }) {
   const [pageNumber, setPageNumber] = React.useState(Math.ceil(total / limit));
   const [activePage, setActivePage] = React.useState(1)
   const [iterator, setIterator] = React.useState([])
-  const [wholeData, setWholeData] = React.useState(data)
-  const [paginationData, setPaginationData] = React.useState([])
-  console.log(iterator)
-
-  React.useEffect(() =>{
-    setPageNumber(Math.ceil(total / limit))
-  },[total,limit])
-
-  React.useEffect(()=>{
-    setWholeData(data)
-  },[data])
 
   React.useEffect(() => {
+    setPageNumber(Math.ceil(total / limit))
+  }, [total, limit])
 
-    const startOffset = (activePage - 1) * limit
-    const endOffset = (activePage * limit)
-
-    if (endOffset > total) {
-      setPaginationData(wholeData.slice(total - endOffset))
-    } else {
-      setPaginationData(wholeData.slice(startOffset, endOffset))
-    }
+  React.useEffect(() => {
 
     let arr = []
     if (pageNumber <= 5) {
@@ -61,38 +42,27 @@ function Pagination({ data, total }) {
     }
     setIterator(arr)
     window.scrollTo(0, 0)
-  }, [activePage, pageNumber, wholeData, total, limit,data])
+  }, [activePage, pageNumber, total, limit])
 
-  function searchFilter(string) {
-    if (string.length > 0) {
-      let filteredData = data.filter(x => x.name.toLowerCase().includes(string.toLowerCase()))
-      setWholeData(filteredData)
-      setActivePage(1)
-      setPageNumber(Math.ceil(filteredData.length / limit))
-
-    } else {
-      setWholeData(data)
-      setActivePage(1)
-      setPageNumber(Math.ceil(total / limit))
-    }
+  function changePage(i) {
+    setActivePage(i)
+    functionHandler.setPage(i)
   }
 
   return (
     <div>
-      <SearchBar searchFilter={searchFilter}></SearchBar>
-      <PokemonList data={paginationData}></PokemonList>
       <ul class="pagination justify-content-center">
         {activePage !== 1 &&
           <li class="page-item">
-            <span class="page-link" onClick={() => setActivePage(activePage - 1)}>Previous</span>
+            <span class="page-link" onClick={() => changePage(activePage - 1)}>Previous</span>
           </li>
         }
         {iterator.map(i => {
-          return <li class={`page-item ${i === activePage ? "active" : ""}`}><span class="page-link" onClick={() => { if (!isNaN(i)) { return setActivePage(i) } }}>{i}</span></li>
+          return <li class={`page-item ${i === activePage ? "active" : ""}`}><span class="page-link" onClick={() => { if (!isNaN(i)) { return changePage(i) } }}>{i}</span></li>
         })}
         {activePage !== pageNumber &&
           <li class="page-item">
-            <span class="page-link" onClick={() => setActivePage(activePage + 1)}>Next</span>
+            <span class="page-link" onClick={() => changePage(activePage + 1)}>Next</span>
           </li>
         }
       </ul>
